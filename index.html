@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title data-id="th-modified">KvK Ultimate Prep Hub V6.6</title>
+    <style>
+        :root { --gold: #f39c12; --blue: #3498db; --green: #2ecc71; --purple: #8e44ad; --red: #e74c3c; --gray: #888; --bg: #121212; --card-bg: #1e1e1e; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: #e0e0e0; padding: 10px; margin: 0; font-size: 16px; }
+        .container { max-width: 650px; margin: auto; }
+        
+        /* Navigation Tabs */
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; background: #252525; padding: 5px; border-radius: 12px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #333; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #888; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 0.85rem; transition: 0.3s; }
+        .tab-btn.active { background: var(--gold); color: #000; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Card System */
+        .card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid #333; margin-bottom: 15px; }
+        h1 { color: var(--gold); text-align: center; margin-top: 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: -1px; }
+        h2 { font-size: 1rem; border-bottom: 2px solid #333; padding-bottom: 8px; margin: 20px 0 15px 0; color: var(--gold); text-transform: uppercase; text-align: center; }
+        h3 { font-size: 0.9rem; color: var(--blue); margin: 15px 0 10px 0; border-left: 3px solid var(--blue); padding-left: 8px; text-transform: uppercase; }
+        
+        label { display: block; font-size: 0.75rem; margin-bottom: 4px; color: #ccc; font-weight: 600; }
+        input, select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #252525; color: white; box-sizing: border-box; font-size: 0.95rem; margin-bottom: 12px; }
+        input::placeholder { color: #555; font-size: 0.85rem; }
+        select option { color: white; background: #252525; }
+        select option:disabled { color: #888; }
+        select:invalid, select option[value=""] { color: #888; }
+        
+        .row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 5px; }
+        .row-stretch { display: flex; gap: 10px; align-items: stretch; margin-bottom: 15px; }
+        .row > div { flex: 1; }
+
+        .item-line { background: #2a2a2a; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--blue); transition: border-left-color 0.3s; }
+        .btn-add { background: var(--green); color: white; padding: 12px; width: 100%; font-size: 0.9rem; font-weight: bold; cursor: pointer; border:none; border-radius:8px; margin: 5px 0 15px 0; }
+        .btn-del { background: var(--red); color: white; padding: 0 10px; height: 40px; border:none; border-radius:8px; cursor:pointer; }
+        
+        button.main-calc { width: 100%; padding: 18px; border: none; border-radius: 10px; background: var(--gold); color: #000; font-weight: 800; font-size: 1.1rem; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
+        
+        .info-btn { background: var(--blue); color: white; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-left: 4px; padding: 0; font-weight: bold; }
+        .warn-btn { background: var(--gold); color: black; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-left: 4px; padding: 0; font-weight: bold; }
+
+        /* Custom Toggle Switch */
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem; font-weight: bold; background: #333; padding: 10px 12px; border-radius: 8px; border: 1px solid #444; color: #ddd; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--green); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Buff blocks for Training */
+        .buff-column { flex: 1; min-width: 140px; background: #252525; padding: 12px; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; }
+        .buff-column h4 { margin: 0 0 10px 0; font-size: 0.8rem; color: var(--blue); text-align: center; text-transform: uppercase; }
+
+        /* Results Section */
+        .results { margin-top: 25px; padding: 15px; background: #2c3e50; border-radius: 10px; display: none; border-left: 5px solid var(--gold); }
+        .res-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; align-items: center; }
+        .val { font-weight: bold; color: var(--gold); }
+        .highlight { color: var(--green); font-weight: 800; }
+        .warning { color: var(--red); font-weight: bold; }
+        .calc-context { font-size: 0.8rem; color: #999; text-align: center; margin-bottom: 15px; background: rgba(0,0,0,0.25); padding: 10px; border-radius: 6px; border: 1px solid #3a4b5c; }
+        .calc-context span { color: #ccc; font-weight: bold; }
+
+        /* Inventory Block */
+        .req-block { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px dashed #555; }
+        .stock-group { margin-bottom: 15px; }
+        .stock-group h5 { margin: 0 0 8px 0; font-size: 0.8rem; color: var(--blue); border-bottom: 1px solid #444; text-transform: uppercase; padding-bottom: 3px; }
+
+        /* Modals */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); overflow-y: auto; }
+        .modal-content { background: var(--card-bg); margin: 5% auto; padding: 25px; border: 2px solid var(--gold); width: 90%; max-width: 600px; border-radius: 16px; position: relative; }
+        .close { color: #aaa; position: absolute; right: 20px; top: 15px; font-size: 32px; font-weight: bold; cursor: pointer; }
+        .help-text h3 { color: var(--gold); margin-top: 20px; border-bottom: 1px solid #444; padding-bottom: 5px; font-size: 1.1rem; text-transform: uppercase; }
+        .help-text p, .help-text li { font-size: 0.9rem; line-height: 1.6; color: #ddd; margin-bottom: 12px; }
+        .help-text b { color: var(--gold); }
+
+        /* Calendar Styles */
+        .sched-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.8rem; margin-top: 10px; }
+        .sched-table th { background: #333; color: var(--gold); padding: 8px 2px; border-bottom: 2px solid var(--gold); }
+        .sched-table td { padding: 10px 2px; border-bottom: 1px solid #444; }
+        .sched-table td:first-child { text-align: left; font-weight: bold; padding-left: 5px; color: #ccc; }
+        .s-best { color: var(--green); font-weight: bold; }
+        .s-no { opacity: 0.3; }
+
+        .hidden { display: none; }
+        footer { text-align: center; font-size: 0.85rem; color: #bbb; margin-top: 20px; margin-bottom: 20px; padding: 15px; background: var(--card-bg); border-radius: 12px; border: 1px solid #444; line-height: 1.8; }
+        footer b { color: #fff; font-size: 1.05rem; }
+        .footer-sub { display: block; font-size: 0.75rem; color: #bbb; margin-top: 5px; font-style: italic; }
+        .credits { font-size: 0.65rem; color: #aaa; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; line-height: 1.4; }
+        .credits b { color: #ddd; font-weight: bold; }
+    </style>
+<meta property="og:title" content="KvK Ultimate Prep Hub V6.6" data-id="th-modified" ><meta property="og:image" content="https://tiiny.host/assets/logo-purple-bg.png" data-id="th-modified" ><meta property="og:url" content="https://training-calculator.tiiny.site/" data-id="th-modified" ><meta property="og:type" content="website" data-id="th-modified" ><script defer data-domain="training-calculator.tiiny.site" src="https://analytics.tiiny.site/js/plausible.js"></script><script type="text/javascript" src="https://tiiny.host/ad-script.js"></script></head>
+<body>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('trainingTab', this)">Training Day</button>
+        <button class="tab-btn" onclick="openTab('weekTab', this)">Week Hub</button>
+    </div>
+
+    <!-- TAB 1: TRAINING DAY -->
+    <div id="trainingTab" class="tab-content active">
+        <div class="card">
+            <div style="display:flex; justify-content: space-between; align-items: stretch; margin-bottom: 15px; flex-wrap: wrap; gap: 8px;">
+                <button style="background:var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:bold; flex: 1; display: grid; place-items: center; text-align: center;" onclick="toggleModal('helpTraining')">🛡️ HELP GUIDE</button>
+                <button style="background:var(--gold); color:#000; border:none; padding:10px; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:bold; flex: 1; display: grid; place-items: center; text-align: center;" onclick="toggleModal('tipsModal')">💡 PRO TIPS</button>
+                <button style="background:#8e44ad; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:bold; flex: 1; display: grid; place-items: center; text-align: center;" onclick="toggleModal('calendarModal')">📅 CALENDAR</button>
+                <button style="background:#444; color:#ccc; border:none; padding:10px; border-radius:8px; cursor:pointer; font-size:0.8rem; flex: 1; display: grid; place-items: center; text-align: center;" onclick="document.getElementById('advSection').classList.toggle('hidden')">⚙️ ADV.</button>
+            </div>
+            
+            <h1>⚔️ Training Scheduler</h1>
+
+            <div id="advSection" class="hidden" style="background: #252525; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed var(--gold);">
+                <p style="font-size: 0.8rem; color: var(--gold); margin: 0 0 10px 0; font-weight:bold;">Tier Constants (Original Seconds):</p>
+                <div style="display:flex; gap:10px; flex-wrap: wrap;" id="advInputs"></div>
+            </div>
+
+            <h2>1. Base Stats</h2>
+            <div class="row">
+                <div style="flex:1">
+                    <label>Training Speed (%) <button class="info-btn" onclick="alert('Click on your Power (Top Left corner) -> This opens the \'Bonus Overview\'. Scroll down to find the \'Training Capacity\' and \'Training Speed\' lines right next to each other.')">?</button></label>
+                    <input type="number" id="baseSpeed" placeholder="Ex: 187.3">
+                </div>
+                <div style="flex:1">
+                    <label>Training Capacity <button class="info-btn" onclick="alert('Click on your Power (Top Left corner) -> This opens the \'Bonus Overview\'. Scroll down to find \'Training Capacity\'. This represents the maximum amount of troops you can train in a single batch.')">?</button></label>
+                    <input type="number" id="baseCap" placeholder="Ex: 1083">
+                </div>
+            </div>
+
+            <h2>2. Buff Selection</h2>
+            <div class="row-stretch">
+                <!-- PREP COLUMN -->
+                <div class="buff-column">
+                    <h4>Strategic Prep <button class="info-btn" onclick="alert('Strategic Prep involves launching a massive batch of troops several days before the event starts so they finish exactly after the Day 4 reset. This allows you to earn millions of points for free without using speedups. By using capacity buffs, you maximize these free points. This calculator estimates the exact UTC time you should start training to finish perfectly after the reset.')">?</button></h4>
+                    <div class="toggle-row">
+                        <span>KvK Prep Buff (+25%) <button class="warn-btn" onclick="alert('⚠️ This buff is generally present during KvK, but information is scarce. This is an assumed bonus based on a single reliable source and will be corrected if necessary during the next KvK.')">!</button></span>
+                        <label class="switch"><input type="checkbox" id="prepEventBuff" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="toggle-row">
+                        <span>Training Capacity +200% <button class="info-btn" onclick="alert('To find this buff: Click the small arrow under your avatar -> go to the \'Growth\' tab -> scroll to the very bottom to find the \'Training Capacity Enhance (2h)\' item, obtainable for 3000 gems. It is essential to triple your prep batch size.')">?</button></span>
+                        <label class="switch"><input type="checkbox" id="prepCapBuff"><span class="slider"></span></label>
+                    </div>
+                    <div style="flex-grow:1"></div>
+                    <label>Ministry Appointment:</label>
+                    <select id="prepTitle" style="margin-bottom:0">
+                        <option value="none">None</option>
+                        <option value="minister">Minister (+10%)</option>
+                        <option value="noble" selected>Noble Advisor (+50% Spd, +200 Cap)</option>
+                    </select>
+                </div>
+                <!-- PUSH COLUMN -->
+                <div class="buff-column">
+                    <h4>Day 4 Push <button class="info-btn" onclick="alert('The Day 4 Push refers to using your speedup stock during the event to train troops and gain massive points. Using speedups for training—especially for promoting lower-tier troops—is the most efficient way to convert your speedups into a high KvK ranking.')">?</button></h4>
+                    <div class="toggle-row">
+                        <span>KvK Prep Buff (+25%) <button class="warn-btn" onclick="alert('⚠️ This buff is generally present during KvK, but information is scarce. This is an assumed bonus based on a single reliable source and will be corrected if necessary during the next KvK.')">!</button></span>
+                        <label class="switch"><input type="checkbox" id="pushEventBuff" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="toggle-row">
+                        <span>King Skill "Mobilize" (+30%)</span>
+                        <label class="switch"><input type="checkbox" id="pushMobilize" checked><span class="slider"></span></label>
+                    </div>
+                    <div style="flex-grow:1"></div>
+                    <label>Ministry Appointment:</label>
+                    <select id="pushTitle" style="margin-bottom:0">
+                        <option value="none">None</option>
+                        <option value="minister">Minister (+10%)</option>
+                        <option value="noble" selected>Noble Advisor (+50% Spd, +200 Cap)</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2>3. Target & Speedups</h2>
+            <div class="row">
+                <div style="flex:1"><label>Target Tier</label><select id="targetTierSelect" required></select></div>
+                <div style="flex:1"><label>Speedups (Hours)</label><input type="number" id="suTotalHours" placeholder="Available stock"></div>
+            </div>
+
+            <h2>4. Prep Mode</h2>
+            <select id="scheduleMode" required>
+                <option value="" disabled selected hidden>Select a preparation batch you'll launch before reset</option>
+                <option value="train">3x New Training Batches</option>
+                <option value="promo">3x Promotion Batches</option>
+                <option value="none">No Strategic Prep (Speedups Only)</option>
+            </select>
+
+            <h2>5. Total Promotion Goal <button class="info-btn" onclick="alert('Add a line for every lower-tier troop type you currently own and wish to upgrade. The calculator will determine exactly how many units you can promote during Day 4 based on your available speedups and current buffs.')">?</button></h2>
+            <div id="promoList"></div>
+            <button class="btn-add" onclick="addRow()">+ Add Promotion Line</button>
+
+            <button class="main-calc" onclick="calculateTraining()">Generate Command Orders</button>
+
+            <div id="resultsTraining" class="results">
+                <div id="prepResultsBlock">
+                    <h3>Strategic Results</h3>
+                    <div class="calc-context">
+                        Calculated with <b><span id="resSpeedPrep"></span></b> applied speed.<br>
+                        <i id="resBuffSummaryPrep" style="font-size:0.75rem;"></i>
+                    </div>
+                    <div class="res-line"><span>Total Training Capacity:</span> <span class="val" id="resCapPrep"></span></div>
+                    <div class="res-line"><span id="lblPromoBatch">Promotion Capacity:</span> <span class="val" id="resPromoBatchSize"></span></div>
+                    <div class="res-line"><span><b>Launch Batch Time:</b></span> <span class="val highlight" id="resTrainTime"></span></div>
+                    <div style="background: rgba(243, 156, 18, 0.1); border: 2px solid var(--gold); padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center;">
+                        <p style="margin:0; font-size:0.85rem;">Launch your 3 batches on:</p>
+                        <p style="margin:8px 0; font-size:1.3rem; font-weight:900; color:var(--green);"><span id="launchDay">--</span> @ <span id="launchTime">--</span> UTC</p>
+                        <p style="margin:0; font-size:0.75rem; color:#bbb;">(Targeting exactly 00:01 UTC on Day 4 reset)</p>
+                    </div>
+                </div>
+
+                <h3>Day 4 Summary</h3>
+                <div class="calc-context">
+                    Calculated with <b><span id="resSpeedPush"></span></b> applied speed.<br>
+                    <i id="resBuffSummaryPush" style="font-size:0.75rem;"></i>
+                </div>
+                <div class="res-line" id="linePrepPts"><span>Points from 3 prep batches:</span> <span class="val highlight" id="resPtsFree"></span></div>
+                <div class="res-line"><span>Remaining units to promote:</span> <span class="val highlight" id="resPromoGoalLeft"></span></div>
+                <div id="shortfallContainer">
+                    <div class="res-line" id="lineActualPromoted" style="display:none;"><span>Actually promoted:</span> <span class="val highlight" id="resActualUnitsPromoted"></span></div>
+                    <div class="res-line"><span>SU needed for goal:</span> <span class="val" id="resSUNeeded"></span></div>
+                    <div class="res-line" id="shortfallRow" style="display:none; color:var(--red);"><span>Missing SU for full goal:</span> <span class="val warning" id="resShortfall"></span></div>
+                </div>
+                <div class="res-line"><span>SU remaining for push:</span> <span class="val" id="resSURemain"></span></div>
+                <div class="res-line"><span id="lblExtraUnits"><b>New units trainable with SU:</b></span> <span class="val highlight" id="extraUnits"></span></div>
+
+                <div style="background:rgba(46, 204, 113, 0.15); border: 2px solid var(--green); padding: 15px; border-radius: 12px; margin-top: 15px; text-align:center;">
+                    <span style="font-weight:bold;">TOTAL TRAINING SCORE:</span><br>
+                    <span class="val highlight" id="totalDay4Pts" style="font-size:1.8rem">--</span>
+                </div>
+                <button class="btn-add" style="background:#8e44ad; margin-top:15px; margin-bottom:0;" onclick="copyTraining()">📋 Copy Results</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: WEEK HUB -->
+    <div id="weekTab" class="tab-content">
+        <div class="card">
+            <div style="display:flex; justify-content: space-between; align-items: stretch; flex-wrap: wrap; margin-bottom: 10px; gap: 8px;">
+                <button style="background:#8e44ad; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:bold; flex: 1; display: grid; place-items: center; text-align: center;" onclick="toggleModal('calendarModal')">📅 SPENDING CALENDAR</button>
+                <button style="background:var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:bold; flex: 1; display: grid; place-items: center; text-align: center;" onclick="toggleModal('helpHub')">🛡️ HUB GUIDE</button>
+            </div>
+            <h1>🗓️ Prep Week Hub</h1>
+            
+            <h3>1. Construction and research</h3>
+            <div class="row">
+                <div><label>Truegold (+2k pts/u)</label><input type="number" id="tgQty" placeholder="Number to use"></div>
+                <div><label>Truegold Dust (+1k pts/u)</label><input type="number" id="tgDust" placeholder="Number to use"></div>
+            </div>
+            <div class="row">
+                <div><label>Const. Speedups (Hours)</label><input type="number" id="suBuild" placeholder="Hours to use"></div>
+                <div><label>Research Speedups (Hours)</label><input type="number" id="suTech" placeholder="Hours to use"></div>
+                <div><label>General Speedups (Hours)</label><input type="number" id="suGenW" placeholder="Hours to use"></div>
+            </div>
+
+            <h3>2. Heroes and roulette</h3>
+            <div class="row">
+                <div><label>Wheel Spins (+8k pts/u)</label><input type="number" id="wheelSpins" placeholder="Number to use"></div>
+                <div><label>Mythic Shards (+3.04k pts/u)</label><input type="number" id="shardsM" placeholder="Number to use"></div>
+            </div>
+            <div class="row">
+                <div><label>Epic Shards (+1.22k pts/u)</label><input type="number" id="shardsE" placeholder="Number to use"></div>
+                <div><label>Rare Shards (+350 pts/u)</label><input type="number" id="shardsR" placeholder="Number to use"></div>
+            </div>
+
+            <h3>3. Hero gears upgrades</h3>
+            <div class="row">
+                <div><label>Mithril (+40k pts/u)</label><input type="number" id="mithril" placeholder="Number to use"></div>
+                <div><label>Hammers (+4k pts/u)</label><input type="number" id="hammers" placeholder="Number to use"></div>
+                <div><label>Widgets (+8k pts/u)</label><input type="number" id="widgets" placeholder="Number to use"></div>
+            </div>
+
+            <h3>4. Pets upgrades</h3>
+            <div class="row">
+                <div><label>Common Marks (+1.15k pts/u)</label><input type="number" id="cMarks" placeholder="Number to use"></div>
+                <div><label>Advanced Marks (+15k pts/u)</label><input type="number" id="aMarks" placeholder="Number to use"></div>
+            </div>
+            <div id="petAdvList"></div>
+            <button class="btn-add" onclick="addPetAdvRow()">+ Add Pet Upgrade</button>
+
+            <h3>5. Gear upgrades</h3>
+            <div id="gearList"></div>
+            <button class="btn-add" onclick="addGearHubRow()">+ Add Gear Piece</button>
+            <div id="redGearDisclaimer" style="display:none; font-size: 0.8rem; color: #ffeb3b; background: rgba(231, 76, 60, 0.2); border: 1px solid var(--red); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <b>⚠️ Red Gear Disclaimer:</b> Data for Red Gears comes from Whiteout Survival, but it appears to be exactly the same. Base score is kept constant at 9560.
+            </div>
+            <div id="redT4GearDisclaimer" style="display:none; font-size: 0.8rem; color: #ffeb3b; background: rgba(231, 76, 60, 0.2); border: 1px solid var(--red); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <b>⚠️ Red T4 Gear Disclaimer:</b> No data is currently available for Red T4 upgrades. The resource and score values are completely extrapolated.
+            </div>
+
+            <h3>6. Charms upgrades</h3>
+            <div id="charmHubList"></div>
+            <button class="btn-add" onclick="addCharmHubRow()">+ Add Charm Upgrade</button>
+            <div id="redCharmDisclaimer" style="display:none; font-size: 0.8rem; color: #ffeb3b; background: rgba(231, 76, 60, 0.2); border: 1px solid var(--red); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <b>⚠️ Level 17+ Charm Disclaimer:</b> Values are certain up to Lvl 16. From Lvl 17+, KvK points are extrapolated based on a trend of +1000 base score per level. Resource costs are fairly certain.
+            </div>
+
+            <button class="main-calc" style="background:var(--blue); color:white;" onclick="calculateWeek()">Calculate Global Score</button>
+
+            <div id="weekResults" class="results">
+                <h3>Global Score Projection</h3>
+                <div class="res-line"><span>Phase 1 (Const & Res):</span> <span class="val" id="resPtsP1"></span></div>
+                <div class="res-line"><span>Phase 2 (Heroes & Wheel):</span> <span class="val" id="resPtsP2"></span></div>
+                <div class="res-line"><span>Phase 3 (Hero Gears):</span> <span class="val" id="resPtsP3"></span></div>
+                <div class="res-line"><span>Phase 4 (Pets):</span> <span class="val" id="resPtsP4"></span></div>
+                <div class="res-line"><span>Phase 5 (Gears):</span> <span class="val" id="resPtsP5"></span></div>
+                <div class="res-line"><span>Phase 6 (Charms):</span> <span class="val" id="resPtsP6"></span></div>
+                <div class="res-line" style="border-top:1px solid #444; padding-top:8px;"><span>Training Day Score (D4):</span> <span class="val" id="resPtsP4Copy">0</span></div>
+                
+                <div style="background:rgba(46, 204, 113, 0.15); border: 2px solid var(--green); padding: 15px; border-radius: 12px; margin-top: 15px; text-align:center;">
+                    <span style="font-weight:bold;">ESTIMATED KVK SCORE:</span><br>
+                    <span class="val highlight" id="resGrandTotal" style="font-size:2rem">--</span>
+                </div>
+                <button class="btn-add" style="background:#8e44ad; margin-top:15px;" onclick="copyWeek()">📋 Copy Results</button>
+
+                <div class="req-block">
+                    <h4 style="margin:0 0 12px 0; font-size:0.8rem; color:var(--blue); text-align:center;">INVENTORY CHECK:</h4>
+                    <div class="stock-group">
+                        <h5>Gears</h5>
+                        <div class="res-line"><span>Satin:</span> <span class="val" id="reqSatin">0</span></div>
+                        <div class="res-line"><span>Threads:</span> <span class="val" id="reqThread">0</span></div>
+                        <div class="res-line"><span>Artisan:</span> <span class="val" id="reqArtisan">0</span></div>
+                    </div>
+                    <div class="stock-group">
+                        <h5>Charms</h5>
+                        <div class="res-line"><span>Guides:</span> <span class="val" id="reqCGuide">0</span></div>
+                        <div class="res-line"><span>Designs:</span> <span class="val" id="reqCDesign">0</span></div>
+                    </div>
+                    <div class="stock-group" style="margin-bottom:0;">
+                        <h5>Pets</h5>
+                        <div class="res-line"><span>Manuals:</span> <span class="val" id="reqManuals">0</span></div>
+                        <div class="res-line"><span>Potions:</span> <span class="val" id="reqPotions">0</span></div>
+                        <div class="res-line"><span>Medals:</span> <span class="val" id="reqMedals">0</span></div>
+                        <div class="res-line"><span>Food XP:</span> <span class="val" id="reqFood">0</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Made by <b>[7DS]Milas</b><br>
+        <span class="footer-sub">Reserved for Kingdom 202 players | AI Assisted Script</span>
+        <div class="credits">
+            Special thanks to <b>kingshot.net</b>, <b>whiteoutsurvival.wiki</b>, <b>kingshotdata.com</b> for the database and <b>Pornhub</b> for the color palette inspiration.
+        </div>
+    </footer>
+</div>
+
+<!-- Modals -->
+<div id="calendarModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="toggleModal('calendarModal')">&times;</span>
+    <h2 style="color:var(--gold); text-align:center;">👑 KvK Prep Schedule</h2>
+    <div style="background:#252525; padding:10px; border-radius:8px; border:1px solid #444; margin-bottom:15px; font-size:0.8rem; display:flex; justify-content:space-around;">
+        <span style="color:var(--green)">✅ Best Day</span>
+        <span style="color:var(--gold)">🆗 Okay</span>
+        <span style="color:var(--red)">🚫 No</span>
+    </div>
+    <table class="sched-table">
+        <thead><tr><th style="text-align:left">Activity</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5</th></tr></thead>
+        <tbody>
+            <tr><td>Truegold / Build</td><td class="s-best">✅</td><td>🆗</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td>🆗</td></tr>
+            <tr><td>Gold Dust / Research</td><td>🆗</td><td class="s-best">✅</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td>🆗</td></tr>
+            <tr><td>Hero Shards / Wheel</td><td class="s-no">🚫</td><td class="s-best">✅</td><td class="s-best">✅</td><td class="s-no">🚫</td><td class="s-no">🚫</td></tr>
+            <tr><td>Troops</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td class="s-best">✅</td><td>🆗</td></tr>
+            <tr><td>Gathering</td><td class="s-no">🚫</td><td class="s-best">✅</td><td class="s-no">🚫</td><td class="s-best">✅</td><td class="s-best">✅</td></tr>
+            <tr><td>Intel Missions</td><td class="s-best">✅</td><td class="s-no">🚫</td><td class="s-best">✅</td><td class="s-no">🚫</td><td class="s-best">✅</td></tr>
+            <tr><td>Pets Advance</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td class="s-best">✅</td><td class="s-no">🚫</td><td class="s-best">✅</td></tr>
+            <tr><td>Gov Charms</td><td class="s-best">✅</td><td class="s-no">🚫</td><td class="s-best">✅</td><td class="s-best">✅</td><td class="s-no">🚫</td></tr>
+            <tr><td>Gov Gear</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td class="s-best">✅</td></tr>
+            <tr><td>Widget / Hammers / Mithril</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td class="s-no">🚫</td><td class="s-best">✅</td><td class="s-best">✅</td></tr>
+        </tbody>
+    </table>
+    <p style="text-align:center; font-size:0.8rem; color:var(--gold); font-weight:bold; margin-top:15px;">Save for the right day! 🎉</p>
+    
+    <button class="btn-add" style="background:#8e44ad; margin-top:15px; margin-bottom:0;" onclick="copyCalendar()">📋 Copy Guide for In-Game Chat</button>
+  </div>
+</div>
+
+<div id="tipsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="toggleModal('tipsModal')">&times;</span>
+    <h2 style="color:var(--gold); text-align:center;">💡 Training Day Pro Tips</h2>
+    <div class="help-text">
+        <h3>1. The Golden Rule: Promotion > Training</h3>
+        <p>Upgrading existing troops (e.g., T9 to T11) yields <b>significantly higher points per speedup hour</b> than training new ones. Points are awarded based on the tier difference, but the time cost is slashed by nearly 75%.</p>
+        <h3>2. Stockpiling Routine</h3>
+        <p>Outside of KvK, continuously produce <b>T8 or T9</b> units. Do not speed them up. When Day 4 arrives, use all your speedups solely to <b>promote</b> these reserves to T11. This strategy is essential for top-tier rankings.</p>
+        <h3>3. Strategic Prep Batch (J-3)</h3>
+        <p>Never start Day 4 with idle buildings. Launch 3 massive batches (Inf/Cav/Arc) approximately 3-4 days before reset. Utilize the <b>+200% Capacity Buff</b> and the <b>Noble Advisor</b> title to maximize batch size. These are millions of "free" points delivered at 00:01 UTC.</p>
+        <h3>4. Buff Stacking</h3>
+        <p>Before spending a single minute of speedups on Day 4: confirm <b>Mobilize (+30%)</b> is active, claim the <b>Noble Advisor (+50%)</b> title, and verify the Kingdom Prep Buff (+25%). Every percentage point saves you thousands of gems worth of speedups.</p>
+    </div>
+  </div>
+</div>
+
+<div id="helpTraining" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="toggleModal('helpTraining')">&times;</span>
+    <h2 style="color:var(--gold); text-align:center;">🛡️ Military Strategy Guide</h2>
+    <div class="help-text">
+        <h3>1. How the Calculator Works</h3>
+        <p>This tool perfectly simulates the in-game training mechanics. By inputting your base stats and desired buffs, it calculates exactly how long batches will take and how many troops you can process. It splits your strategy into two phases: the <b>Strategic Prep</b> (troops launched days before) and the <b>Day 4 Push</b> (where you use your saved speedups). It's designed to give you a precise roadmap and points projection so you know exactly where you stand before spending any resources.</p>
+        
+        <h3>2. Finding Accurate Stats</h3>
+        <p>Your results are only as good as your inputs. Find them in 2 easy steps:
+        <ul>
+            <li>Click on your <b>Power</b> (Top Left corner of your screen).</li>
+            <li>This opens the <b>Bonus Overview</b>. Scroll down to the bottom to find the <b>Training Capacity</b> and <b>Training Speed</b> lines (they are placed right next to each other). Enter these raw values.</li>
+        </ul></p>
+        
+        <h3>3. Strategic Prep Calculation</h3>
+        <p>This calculator determines the exact UTC time for you to click "Train" days before the event. If timed correctly, the progress bar will reach 100% at exactly <b>00:01 UTC on Day 4</b>, bypassing speedup costs entirely for that first batch.</p>
+        
+        <h3>4. Promotion Goal Logic</h3>
+        <p>Add a row for every troop tier you currently own. The tool will calculate the exact amount of speedups required to upgrade your entire army to your Target Tier (usually T10 or T11).</p>
+    </div>
+  </div>
+</div>
+
+<div id="helpHub" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="toggleModal('helpHub')">&times;</span>
+    <h2 style="color:var(--blue); text-align:center;">🛡️ Hub Guide & Point Logic</h2>
+    <div class="help-text">
+        <h3>1. Unified Spending Tracker</h3>
+        <p>This hub aggregates all planned expenditures for the Prep Week. Use it to verify if your current bag stock is sufficient to reach your personal or alliance point targets.</p>
+        <h3>2. Multi-Level Upgrades</h3>
+        <p>For Gears and Charms, select your "From" rarity/level and your "To" target. The calculator automatically sums the resources and points for <b>every intermediate step</b> between the two.</p>
+        <h3>3. Pet Advancement (Gen 1-6)</h3>
+        <p>Crucial distinction: Leveling pets with XP Food provides <b>0 KvK points</b>. Points are only awarded for <b>Advancement Steps</b> (every 10 levels). This tool calculates the Manuals, Potions, and Medals needed for those specific score-giving steps.</p>
+        <h3>4. Inventory Pre-Flight Check</h3>
+        <p>The "Inventory Check" block at the bottom is your final verification. Compare these totals with your in-game bag. If you lack the required Satin or Charme Guides, reconsider starting the upgrade to avoid missing out on full bonus completion.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Global state
+    let cachedD4Pts = 0;
+
+    const UNIT_SEC_DEFAULTS = { 1:12, 2:17, 3:24, 4:32, 5:44, 6:60, 7:83, 8:113, 9:131, 10:152, 11:180 };
+    const UNIT_PTS = { 1:3, 2:4, 3:5, 4:8, 5:12, 6:18, 7:25, 8:35, 9:45, 10:60, 11:75 };
+    
+    const CHARM_DATA = { 
+        1:{g:5,d:5,s:625}, 2:{g:40,d:15,s:1250}, 3:{g:60,d:40,s:3125}, 4:{g:80,d:100,s:8750}, 5:{g:100,d:200,s:11250}, 
+        6:{g:120,d:300,s:12500}, 7:{g:140,d:400,s:12500}, 8:{g:200,d:400,s:13000}, 9:{g:300,d:400,s:14000}, 10:{g:420,d:420,s:15000}, 
+        11:{g:560,d:420,s:16000}, 12:{g:580,d:600,s:17000}, 13:{g:610,d:780,s:18000}, 14:{g:645,d:960,s:19000}, 15:{g:685,d:1140,s:20000},
+        16:{g:730,d:1320,s:21000}, 17:{g:780,d:1500,s:22000}, 18:{g:840,d:1680,s:23000}, 19:{g:910,d:1860,s:24000}, 20:{g:990,d:2040,s:25000},
+        21:{g:1080,d:2220,s:26000}, 22:{g:1180,d:2400,s:27000}
+    };
+    const CHARM_SETS = ["Head (Cav)","Necklace (Cav)","Armor (Inf)","Pants (Inf)","Ring (Arc)","Weapon (Arc)"];
+    
+    const GEAR_STEPS = [
+        {n:"Uncommon", s:1125, satin:1500, th:15, v:0}, {n:"Uncommon 1*", s:1875, satin:3800, th:40, v:0},
+        {n:"Rare", s:3000, satin:7000, th:70, v:0}, {n:"Rare 1*", s:4500, satin:9700, th:95, v:0},
+        {n:"Rare 2*", s:5100, satin:1000, th:10, v:45}, {n:"Rare 3*", s:5400, satin:1000, th:10, v:50},
+        {n:"Epic", s:3230, satin:1500, th:15, v:60}, {n:"Epic 1*", s:3230, satin:1500, th:15, v:70},
+        {n:"Epic 2*", s:3225, satin:6500, th:65, v:40}, {n:"Epic 3*", s:3225, satin:8000, th:80, v:50},
+        {n:"Epic T1", s:3440, satin:10000, th:95, v:60}, {n:"Epic T1 1*", s:3440, satin:11000, th:110, v:70},
+        {n:"Epic T1 2*", s:4085, satin:13000, th:130, v:85}, {n:"Epic T1 3*", s:4085, satin:15000, th:160, v:100},
+        {n:"Mythic", s:6250, satin:22000, th:220, v:40}, {n:"Mythic 1*", s:6250, satin:23000, th:230, v:40},
+        {n:"Mythic 2*", s:6250, satin:25000, th:250, v:45}, {n:"Mythic 3*", s:6250, satin:26000, th:260, v:45},
+        {n:"Mythic T1", s:6250, satin:28000, th:280, v:45}, {n:"Mythic T1 1*", s:6250, satin:30000, th:300, v:55},
+        {n:"Mythic T1 2*", s:6250, satin:32000, th:320, v:55}, {n:"Mythic T1 3*", s:6250, satin:35000, th:340, v:55},
+        {n:"Mythic T2", s:6250, satin:38000, th:390, v:55}, {n:"Mythic T2 1*", s:6250, satin:43000, th:430, v:75},
+        {n:"Mythic T2 2*", s:6250, satin:45000, th:460, v:80}, {n:"Mythic T2 3*", s:6250, satin:48000, th:500, v:85},
+        {n:"Mythic T3", s:6250, satin:60000, th:600, v:120}, {n:"Mythic T3 1*", s:6250, satin:70000, th:700, v:140},
+        {n:"Mythic T3 2*", s:6250, satin:80000, th:800, v:160}, {n:"Mythic T3 3*", s:6250, satin:90000, th:900, v:180},
+        {n:"Red", s:9560, satin:108000, th:1080, v:220}, {n:"Red 1*", s:9560, satin:114000, th:1140, v:230},
+        {n:"Red 2*", s:9560, satin:121000, th:1210, v:240}, {n:"Red 3*", s:9560, satin:128000, th:1280, v:250},
+        {n:"Red T1", s:9560, satin:154000, th:1540, v:300}, {n:"Red T1 1*", s:9560, satin:163000, th:1630, v:320},
+        {n:"Red T1 2*", s:9560, satin:173000, th:1730, v:340}, {n:"Red T1 3*", s:9560, satin:183000, th:1830, v:360},
+        {n:"Red T2", s:9560, satin:220000, th:2200, v:430}, {n:"Red T2 1*", s:9560, satin:233000, th:2330, v:460},
+        {n:"Red T2 2*", s:9560, satin:247000, th:2470, v:490}, {n:"Red T2 3*", s:9560, satin:264000, th:2640, v:520},
+        {n:"Red T3", s:9560, satin:306000, th:3060, v:610}, {n:"Red T3 1*", s:9560, satin:323000, th:3230, v:650},
+        {n:"Red T3 2*", s:9560, satin:340000, th:3400, v:690}, {n:"Red T3 3*", s:9560, satin:357000, th:3570, v:730},
+        {n:"Red T4", s:9560, satin:412000, th:4120, v:840}, {n:"Red T4 1*", s:9560, satin:433000, th:4330, v:890},
+        {n:"Red T4 2*", s:9560, satin:454000, th:4540, v:940}, {n:"Red T4 3*", s:9560, satin:475000, th:4750, v:990}
+    ];
+
+    const PET_RARITIES = {
+        "Gray Wolf": 0, "Bison": 1, "Lynx": 1, "Moose": 2, "Cheetah": 2, "Grizzly Bear": 3, "Lion": 3,
+        "Mighty Bison": 4, "Giant Rhino": 4, "Alpha Black Panther": 4, "Great Moose": 4, "Ironclad War Elephant": 4, "Regal White Lion": 4
+    };
+
+    const PET_MANUALS = [[15,30,45,60,90], [20,40,60,80,120,160], [25,50,75,100,155,200,255], [30,60,95,125,190,250,310,380], [35,70,110,145,220,290,365,440,585,730]];
+    const PET_POTIONS = [[0,0,10,15,25], [0,0,10,20,30,40], [0,0,10,20,30,50,80], [0,0,10,20,30,50,80,100], [0,0,15,35,50,65,85,100,115,135]];
+    const PET_MEDALS = [[0,0,0,0,10], [0,0,0,0,10,20], [0,0,0,0,10,20,40], [0,0,0,0,10,20,40,60], [0,0,0,0,10,20,40,60,80,100]];
+    const ADVANCEMENT_PTS = [500, 1000, 2000, 3000, 4500, 6750, 10000, 12000, 14500, 17500];
+
+    // Helper functions
+    function secToHms(d) {
+        d = Math.max(0, Number(d));
+        const days = Math.floor(d / 86400);
+        const hours = Math.floor((d % 86400) / 3600);
+        const minutes = Math.floor((d % 3600) / 60);
+        const seconds = Math.floor(d % 60);
+        
+        return `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+    }
+
+    function getPetStepList(maxLvl) {
+        let steps = []; steps.push({ type: 'lvl', val: 1 });
+        for(let i=2; i<=maxLvl; i++) { steps.push({ type: 'lvl', val: i }); if (i % 10 === 0) steps.push({ type: 'adv', val: i }); }
+        return steps;
+    }
+
+    function getPetXpCost(category, level) {
+        if (level <= 1) return 0;
+        const I = (category + 1) * 10;
+        const tierMult = [1, 1.5, 2, 3, 4, 5, 6, 6, 8, 8], jumpMult = [1.5, 2, 3, 4, 5, 6, 6, 8, 8, 10];
+        let cost = I * 10;
+        for (let l = 3; l <= level; l++) {
+            if (l % 10 === 0) cost += I * jumpMult[(l/10) - 1];
+            else cost += I * (tierMult[Math.floor(l / 10)] || 0);
+        }
+        return cost;
+    }
+
+    function openTab(name, btn) {
+        document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+        document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+        document.getElementById(name).classList.add("active"); btn.classList.add("active");
+    }
+
+    function toggleModal(id) { let m = document.getElementById(id); m.style.display = m.style.display === "block" ? "none" : "block"; }
+
+    function checkRedGear() {
+        let hasRed = false, hasRedT4 = false;
+        document.querySelectorAll('#gearList .gTo').forEach(sel => {
+            const val = parseInt(sel.value);
+            if (val >= 30 && val < 46) hasRed = true;
+            if (val >= 46) hasRedT4 = true;
+            const row = sel.closest('.item-line');
+            let color = "var(--blue)";
+            if (val <= 1) color = "var(--green)";
+            else if (val <= 5) color = "var(--blue)";
+            else if (val <= 13) color = "var(--purple)";
+            else if (val <= 29) color = "var(--gold)";
+            else color = "var(--red)";
+            row.style.borderLeftColor = color;
+        });
+        document.getElementById('redGearDisclaimer').style.display = hasRed ? 'block' : 'none';
+        document.getElementById('redT4GearDisclaimer').style.display = hasRedT4 ? 'block' : 'none';
+    }
+
+    function checkCharms() {
+        let hasHighLvl = false;
+        document.querySelectorAll('#charmHubList .cTo, #charmHubList .cFrom').forEach(sel => {
+            const val = parseInt(sel.value);
+            if (val >= 17) hasHighLvl = true;
+        });
+        document.getElementById('redCharmDisclaimer').style.display = hasHighLvl ? 'block' : 'none';
+    }
+
+    function calculateTraining() {
+        const speedVal = parseFloat(document.getElementById('baseSpeed').value) || 0;
+        const capVal = parseFloat(document.getElementById('baseCap').value) || 0;
+        const targetT = parseInt(document.getElementById('targetTierSelect').value);
+        const mode = document.getElementById('scheduleMode').value;
+        if(isNaN(targetT) || mode === "") { alert("Please select a Target Tier and Prep Mode."); return; }
+        
+        const tTBase = parseFloat(document.getElementById(`baseT${targetT}`).value);
+        const totalSU = (parseFloat(document.getElementById('suTotalHours').value || 0)) * 3600;
+        
+        // Prep calculations
+        const pEvt = document.getElementById('prepEventBuff').checked ? 25 : 0;
+        const pT = document.getElementById('prepTitle').value;
+        const pC = document.getElementById('prepCapBuff').checked;
+        const totalPrepSpeed = speedVal + pEvt + (pT === 'noble' ? 50 : (pT === 'minister' ? 10 : 0));
+        const sfP = 1 + (totalPrepSpeed / 100);
+        const capP = (capVal + (pT === 'noble' ? 200 : 0)) * (pC ? 3 : 1);
+
+        // Push calculations
+        const pushEvt = document.getElementById('pushEventBuff').checked ? 25 : 0;
+        const pushMob = document.getElementById('pushMobilize').checked ? 30 : 0;
+        const pushT = document.getElementById('pushTitle').value;
+        const totalPushSpeed = speedVal + pushEvt + pushMob + (pushT === 'noble' ? 50 : (pushT === 'minister' ? 10 : 0));
+        const sfPush = 1 + (totalPushSpeed / 100);
+        const capPush = (capVal + (pushT === 'noble' ? 200 : 0));
+
+        let fPts = 0, suNeed = 0, potPts = 0, uGoal = 0, freeRem = 3, mainS = 0;
+        document.querySelectorAll('#promoList .item-line').forEach(line => {
+            let sT = parseInt(line.querySelector('.sT').value), qty = parseFloat(line.querySelector('.sQ').value) || 0;
+            if(!sT || sT >= targetT) return; if(sT > mainS) mainS = sT;
+            let sB = parseFloat(document.getElementById(`baseT${sT}`).value), pUnit = UNIT_PTS[targetT] - UNIT_PTS[sT], tPush = (tTBase - sB) / sfPush;
+            if(mode === 'promo' && freeRem > 0) { let pB = capP * (tTBase / (tTBase - sB)), fU = Math.min(qty, pB * freeRem); fPts += fU * pUnit; freeRem -= (fU / pB); qty -= fU; }
+            uGoal += Math.max(0, qty); suNeed += Math.max(0, qty) * tPush; potPts += Math.max(0, qty) * pUnit;
+        });
+        if (mode === 'train') fPts = (capP * 3) * UNIT_PTS[targetT];
+        let actPts = (totalSU >= suNeed) ? potPts : potPts * (totalSU / (suNeed || 1));
+        if (totalSU < suNeed) { document.getElementById('shortfallRow').style.display = 'flex'; document.getElementById('lineActualPromoted').style.display = 'flex'; document.getElementById('resShortfall').innerText = secToHms(suNeed - totalSU); }
+        else { document.getElementById('shortfallRow').style.display = 'none'; document.getElementById('lineActualPromoted').style.display = 'none'; }
+        const sL = Math.max(0, totalSU - suNeed), extraU = Math.floor(sL / (tTBase / sfPush)) || 0;
+        cachedD4Pts = fPts + actPts + (extraU * UNIT_PTS[targetT]);
+
+        // Setup results view
+        document.getElementById('resSpeedPrep').innerText = totalPrepSpeed.toFixed(1) + '%';
+        let prepBuffText = [];
+        if(pEvt) prepBuffText.push("KvK Buff");
+        if(pC) prepBuffText.push("Capacity +200%");
+        if(pT !== 'none') prepBuffText.push(pT === 'noble' ? "Noble Advisor" : "Minister");
+        document.getElementById('resBuffSummaryPrep').innerText = prepBuffText.length ? "With " + prepBuffText.join(" and ") : "No extra buffs included";
+
+        document.getElementById('resSpeedPush').innerText = totalPushSpeed.toFixed(1) + '%';
+        let pushBuffText = [];
+        if(pushEvt) pushBuffText.push("KvK Buff");
+        if(pushMob) pushBuffText.push("Mobilize");
+        if(pushT !== 'none') pushBuffText.push(pushT === 'noble' ? "Noble Advisor" : "Minister");
+        document.getElementById('resBuffSummaryPush').innerText = pushBuffText.length ? "With " + pushBuffText.join(" and ") : "No extra buffs included";
+
+        document.getElementById('resCapPrep').innerText = Math.floor(capP).toLocaleString();
+        let sLbl = mainS || (targetT > 1 ? targetT - 1 : 1);
+        document.getElementById('lblPromoBatch').innerText = `Promotion Cap (T${sLbl}):`;
+        document.getElementById('resPromoBatchSize').innerText = Math.floor(capP * (tTBase / (tTBase - parseFloat(document.getElementById(`baseT${sLbl}`).value)))).toLocaleString();
+        document.getElementById('resTrainTime').innerText = secToHms(capP * (tTBase / sfP));
+        document.getElementById('resPtsFree').innerText = Math.floor(fPts).toLocaleString() + " pts";
+        document.getElementById('resPromoGoalLeft').innerText = Math.floor(uGoal).toLocaleString();
+        document.getElementById('resActualUnitsPromoted').innerText = Math.floor(uGoal * (totalSU < suNeed ? totalSU/suNeed : 1)).toLocaleString();
+        document.getElementById('resSUNeeded').innerText = secToHms(suNeed);
+        document.getElementById('resSURemain').innerText = secToHms(sL);
+        document.getElementById('lblExtraUnits').innerHTML = `<b>New T${targetT} trainable with SU:</b>`;
+        document.getElementById('extraUnits').innerText = Math.floor(extraU).toLocaleString();
+        document.getElementById('totalDay4Pts').innerText = Math.floor(cachedD4Pts).toLocaleString();
+        
+        const lS = (3 * 86400 + 60) - (capP * (tTBase / sfP));
+        document.getElementById('launchDay').innerText = "Day " + (Math.floor(lS/86400)+1);
+        document.getElementById('launchTime').innerText = new Date(lS*1000).toISOString().substr(11,5);
+        document.getElementById('prepResultsBlock').style.display = (mode === 'none' ? 'none' : 'block');
+        document.getElementById('linePrepPts').style.display = (mode === 'none' ? 'none' : 'flex');
+        document.getElementById('resultsTraining').style.display = 'block';
+    }
+
+    function calculateWeek() {
+        const suW = (parseFloat(document.getElementById('suBuild').value||0) + parseFloat(document.getElementById('suTech').value||0) + parseFloat(document.getElementById('suGenW').value||0)) * 60 * 30;
+        const pP1 = (parseFloat(document.getElementById('tgQty').value||0)*2000) + (parseFloat(document.getElementById('tgDust').value||0)*1000) + suW;
+        const pP2 = (parseFloat(document.getElementById('wheelSpins').value||0)*8000) + (parseFloat(document.getElementById('shardsM').value||0)*3040) + (parseFloat(document.getElementById('shardsE').value||0)*1220) + (parseFloat(document.getElementById('shardsR').value||0)*350);
+        const pP3 = (parseFloat(document.getElementById('mithril').value||0)*40000) + (parseFloat(document.getElementById('hammers').value||0)*4000) + (parseFloat(document.getElementById('widgets').value||0)*8000);
+        let pPts = 0, food = 0, manuals = 0, potions = 0, medals = 0;
+        const pP4Marks = (parseFloat(document.getElementById('cMarks').value||0)*1150) + (parseFloat(document.getElementById('aMarks').value||0)*15000);
+        document.querySelectorAll('#petAdvList .item-line').forEach(r => {
+            const pVal = r.querySelector('.pName').value; if(!pVal) return;
+            const p = pVal.split(" (Gen")[0], fIdx = parseInt(r.querySelector('.pFrom').value||0), tIdx = parseInt(r.querySelector('.pTo').value||0), cat = PET_RARITIES[p], steps = getPetStepList([50,60,70,80,100][cat]);
+            for(let i = fIdx + 1; i <= tIdx; i++) {
+                let s = steps[i]; if (s.type === 'lvl') food += getPetXpCost(cat, s.val);
+                else { let idx = (s.val/10)-1; manuals += (PET_MANUALS[cat][idx] || 0); potions += (PET_POTIONS[cat][idx] || 0); medals += (PET_MEDALS[cat][idx] || 0); pPts += ADVANCEMENT_PTS[idx] * 50; }
+            }
+        });
+        let gPts = 0, satin = 0, th = 0, v = 0;
+        document.querySelectorAll('#gearList .item-line').forEach(r => {
+            const f = parseInt(r.querySelector('.gFrom').value), t = parseInt(r.querySelector('.gTo').value);
+            for(let i=f+1; i<=t; i++) { satin += GEAR_STEPS[i].satin; th += GEAR_STEPS[i].th; v += GEAR_STEPS[i].v; gPts += GEAR_STEPS[i].s * 36; }
+        });
+        let cPts = 0, cg = 0, cd = 0;
+        document.querySelectorAll('#charmHubList .item-line').forEach(r => {
+            const f = parseInt(r.querySelector('.cFrom').value), t = parseInt(r.querySelector('.cTo').value);
+            if(isNaN(f) || isNaN(t)) return;
+            for(let i=f+1; i<=t; i++) if(CHARM_DATA[i]) { cg += CHARM_DATA[i].g; cd += CHARM_DATA[i].d; cPts += CHARM_DATA[i].s * 70; }
+        });
+        document.getElementById('resPtsP1').innerText = Math.floor(pP1).toLocaleString(); document.getElementById('resPtsP2').innerText = Math.floor(pP2).toLocaleString(); document.getElementById('resPtsP3').innerText = Math.floor(pP3).toLocaleString(); document.getElementById('resPtsP4').innerText = Math.floor(pPts + pP4Marks).toLocaleString(); document.getElementById('resPtsP5').innerText = Math.floor(gPts).toLocaleString(); document.getElementById('resPtsP6').innerText = Math.floor(cPts).toLocaleString();
+        document.getElementById('resPtsP4Copy').innerText = Math.floor(cachedD4Pts).toLocaleString(); document.getElementById('resGrandTotal').innerText = Math.floor(pP1 + pP2 + pP3 + pPts + pP4Marks + gPts + cPts + cachedD4Pts).toLocaleString();
+        document.getElementById('reqSatin').innerText = satin.toLocaleString(); document.getElementById('reqThread').innerText = th.toLocaleString(); document.getElementById('reqArtisan').innerText = v.toLocaleString();
+        document.getElementById('reqCGuide').innerText = cg.toLocaleString(); document.getElementById('reqCDesign').innerText = cd.toLocaleString();
+        document.getElementById('reqManuals').innerText = manuals.toLocaleString(); document.getElementById('reqPotions').innerText = potions.toLocaleString(); document.getElementById('reqMedals').innerText = medals.toLocaleString(); document.getElementById('reqFood').innerText = food.toLocaleString();
+        document.getElementById('weekResults').style.display = 'block';
+    }
+
+    function addRow() { document.getElementById('promoList').insertAdjacentHTML('beforeend', `<div class="item-line row"><div><select class="sT"><option value="" disabled selected hidden>Starting tier</option><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option><option value="5">T5</option><option value="6">T6</option><option value="7">T7</option><option value="8">T8</option><option value="9">T9</option><option value="10">T10</option></select></div><div><input type="number" class="sQ" placeholder="Quantity"></div><button class="btn-del" onclick="this.parentElement.remove()">✖</button></div>`); }
+    function addGearHubRow() { let opts = GEAR_STEPS.map((s, i) => `<option value="${i}">${s.n}</option>`).join(''); document.getElementById('gearList').insertAdjacentHTML('beforeend', `<div class="item-line row"><div><select><option>Weapon</option><option>Head</option><option>Armor</option><option>Boots</option><option>Necklace</option><option>Ring</option></select></div><div><label>From</label><select class="gFrom" onchange="checkRedGear()"><option value="" disabled selected hidden>Current Rarity</option>${opts}</select></div><div><label>To</label><select class="gTo" onchange="checkRedGear()"><option value="" disabled selected hidden>Target Rarity</option>${opts}</select></div><button class="btn-del" onclick="this.parentElement.remove(); checkRedGear();">✖</button></div>`); }
+    function addCharmHubRow() { let opts = CHARM_SETS.map(g => `<option>${g}</option>`).join(''); let lvls = ""; for(let i=0; i<=22; i++) lvls += `<option value="${i}">Lvl ${i}</option>`; document.getElementById('charmHubList').insertAdjacentHTML('beforeend', `<div class="item-line row"><div><select>${opts}</select></div><div><label>Slot</label><select><option>Slot 1</option><option>Slot 2</option><option>Slot 3</option></select></div><div><label>From</label><select class="cFrom" onchange="checkCharms()"><option value="" disabled selected hidden>Current Lvl</option>${lvls}</select></div><div><label>To</label><select class="cTo" onchange="checkCharms()"><option value="" disabled selected hidden>Target Lvl</option>${lvls}</select></div><button class="btn-del" onclick="this.parentElement.remove(); checkCharms();">✖</button></div>`); }
+    function addPetAdvRow() {
+        let opt = `<optgroup label="Mythic (Gold)">
+                       <option value="Mighty Bison">Mighty Bison (Gen 4)</option>
+                       <option value="Giant Rhino">Giant Rhino (Gen 4)</option>
+                       <option value="Alpha Black Panther">Alpha Black Panther (Gen 5)</option>
+                       <option value="Great Moose">Great Moose (Gen 5)</option>
+                       <option value="Ironclad War Elephant">Ironclad War Elephant (Gen 6)</option>
+                       <option value="Regal White Lion">Regal White Lion (Gen 6)</option>
+                   </optgroup>
+                   <optgroup label="Epic (Purple)">
+                       <option value="Grizzly Bear">Grizzly Bear (Gen 3)</option>
+                       <option value="Lion">Lion (Gen 3)</option>
+                   </optgroup>
+                   <optgroup label="Rare (Blue)">
+                       <option value="Moose">Moose (Gen 2)</option>
+                       <option value="Cheetah">Cheetah (Gen 2)</option>
+                   </optgroup>
+                   <optgroup label="Uncommon (Green)">
+                       <option value="Bison">Bison (Gen 1)</option>
+                       <option value="Lynx">Lynx (Gen 1)</option>
+                   </optgroup>
+                   <optgroup label="Common (Gray)">
+                       <option value="Gray Wolf">Gray Wolf (Gen 1)</option>
+                   </optgroup>`;
+        document.getElementById('petAdvList').insertAdjacentHTML('beforeend', `<div class="item-line row"><div><select class="pName" onchange="updatePetRow(this)"><option value="" disabled selected hidden>Choose Pet</option>${opt}</select></div><div><label>From</label><select class="pFrom"></select></div><div><label>To</label><select class="pTo"></select></div><button class="btn-del" onclick="this.parentElement.remove()">✖</button></div>`);
+    }
+    function updatePetRow(select) {
+        const row = select.closest('.item-line'), pFrom = row.querySelector('.pFrom'), pTo = row.querySelector('.pTo'), pName = select.value.split(" (Gen")[0], cat = PET_RARITIES[pName];
+        const steps = getPetStepList([50, 60, 70, 80, 100][cat]);
+        pFrom.innerHTML = pTo.innerHTML = '';
+        steps.forEach((s, idx) => { let lbl = s.type === 'lvl' ? "Lvl " + s.val : `${s.val/10} Adv.`; pFrom.insertAdjacentHTML('beforeend', `<option value="${idx}">${lbl}</option>`); pTo.insertAdjacentHTML('beforeend', `<option value="${idx}">${lbl}</option>`); });
+        const colors = ["#888", "var(--green)", "var(--blue)", "var(--purple)", "var(--gold)"]; row.style.borderLeftColor = colors[cat];
+    }
+
+    function showToast(msg) { let t = document.getElementById('toastMsg'); if(!t) { t = document.createElement('div'); t.id = 'toastMsg'; t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:12px 24px;border-radius:8px;z-index:3000;transition:0.3s;'; document.body.appendChild(t); } t.innerText = msg; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000); }
+    function copyTraining() { let text = `🛡️ K202 Training Day Total: ${document.getElementById('totalDay4Pts').innerText} pts`; const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("Copied!"); }
+    function copyWeek() { let text = `🛡️ K202 Prep Week Total: ${document.getElementById('resGrandTotal').innerText} pts`; const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("Copied!"); }
+    
+    function copyCalendar() {
+        const text = `👑KVK Prep Guide👑
+
+ １   ２　３    ４    ５ 
+✅｜🆗｜🚫｜🚫｜🆗｜Truegold 🆗｜✅｜🚫｜🚫｜🆗｜Gold Dust 🚫｜✅｜✅｜🚫｜🚫｜Hero shard ✅｜🆗｜🚫｜🚫｜🆗｜Building 🚫｜🚫｜🚫｜✅｜🆗｜Troop 🆗｜✅｜🚫｜🚫｜🆗｜Research 🚫｜✅｜✅｜🚫｜🚫｜Wheel 🚫｜✅｜🚫｜✅｜✅｜Gathering ✅｜🚫｜✅｜🚫｜✅｜Intel 🚫｜🚫｜✅｜🚫｜✅｜Pets advance ✅｜🚫｜✅｜✅｜🚫｜Gov Charm 🚫｜🚫｜🚫｜🚫｜✅｜Gov Gear 🚫｜🚫｜🚫｜✅｜✅｜Widget gear 🚫｜🚫｜🚫｜✅｜✅｜Mithril 🚫｜🚫｜🚫｜✅｜✅｜Hammer
+
+✅ best day to use materials 
+🆗 okay to use materials, but not the optimal time. 
+🚫 do not use materials
+
+Lets win prep! 🎉`;
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast("Guide Copied!");
+    }
+
+    window.onload = () => {
+        const adv = document.getElementById('advInputs'), tgt = document.getElementById('targetTierSelect');
+        tgt.insertAdjacentHTML('beforeend', `<option value="" disabled selected hidden>Choose Target Tier</option>`);
+        for(let i=1; i<=11; i++) {
+            adv.insertAdjacentHTML('beforeend', `<div style="width:65px;"><label>T${i}</label><input type="number" id="baseT${i}" value="${UNIT_SEC_DEFAULTS[i]}"></div>`);
+            tgt.insertAdjacentHTML('beforeend', `<option value="${i}">T${i} (${UNIT_PTS[i]} pts)</option>`);
+        }
+        addRow();
+    }
+</script>
+</body>
+</html>
